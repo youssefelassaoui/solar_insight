@@ -1,0 +1,10 @@
+public/tiles
+public/tiles_thermal
+public/centrale.tif
+public/centrale_byte.tif
+public/centrale_3857.tif
+public/thermal.tif
+public/thermal_3857.tif
+public/scale_to_byte.py
+public/thermal_colors.txt
+upload_tiles_r2.py
