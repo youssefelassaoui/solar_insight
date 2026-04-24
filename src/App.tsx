@@ -1,4 +1,4 @@
-import { SignedIn, SignedOut } from '@clerk/clerk-react'
+import { useAuth } from '@clerk/clerk-react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { useTheme } from './context/ThemeContext'
 import Topbar from './components/layout/Topbar'
@@ -25,31 +25,51 @@ function Dashboard() {
   )
 }
 
+/* Waits for Clerk to finish loading before deciding to redirect */
+function ProtectedRoute() {
+  const { isLoaded, isSignedIn } = useAuth()
+
+  if (!isLoaded) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        background: '#0f1117',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+          <img src="/bayan.svg" alt="Bayan" style={{ height: '48px', opacity: 0.7 }} />
+          <div style={{
+            width: '32px', height: '32px',
+            border: '3px solid #e8733a',
+            borderTopColor: 'transparent',
+            borderRadius: '50%',
+            animation: 'spin 0.8s linear infinite',
+          }} />
+          <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
+        </div>
+      </div>
+    )
+  }
+
+  if (!isSignedIn) return <Navigate to="/sign-in" replace />
+  return <Dashboard />
+}
+
+function PublicRoute() {
+  const { isLoaded, isSignedIn } = useAuth()
+  if (!isLoaded) return null
+  if (isSignedIn) return <Navigate to="/" replace />
+  return <SignInPage />
+}
+
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route
-          path="/sign-in/*"
-          element={
-            <SignedOut>
-              <SignInPage />
-            </SignedOut>
-          }
-        />
-        <Route
-          path="/*"
-          element={
-            <>
-              <SignedIn>
-                <Dashboard />
-              </SignedIn>
-              <SignedOut>
-                <Navigate to="/sign-in" replace />
-              </SignedOut>
-            </>
-          }
-        />
+        <Route path="/sign-in/*" element={<PublicRoute />} />
+        <Route path="/*"         element={<ProtectedRoute />} />
       </Routes>
     </BrowserRouter>
   )
