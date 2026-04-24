@@ -1,6 +1,5 @@
 import { useState, type FormEvent } from "react";
 import { useSignIn } from "@clerk/clerk-react";
-import { useNavigate } from "react-router-dom";
 
 /* ── palette ────────────────────────────────────────────────── */
 const ORANGE = "#e8733a"; // cold-leaning orange
@@ -17,7 +16,6 @@ type View = "login" | "forgot-send" | "forgot-reset" | "forgot-done";
 
 export default function SignInPage() {
   const { signIn, isLoaded, setActive } = useSignIn();
-  const navigate = useNavigate();
 
   const [view, setView] = useState<View>("login");
   const [email, setEmail] = useState("");
@@ -36,8 +34,13 @@ export default function SignInPage() {
     try {
       const result = await signIn.create({ identifier: email, password });
       if (result.status === "complete") {
-        await setActive({ session: result.createdSessionId });
-        navigate("/");
+        await setActive({
+          session: result.createdSessionId,
+          beforeEmit: () => {
+            window.location.href = "/";
+            return Promise.resolve();
+          },
+        });
       }
     } catch (err: unknown) {
       setError(
@@ -84,8 +87,13 @@ export default function SignInPage() {
         password: newPass,
       });
       if (result.status === "complete") {
-        await setActive({ session: result.createdSessionId });
-        navigate("/");
+        await setActive({
+          session: result.createdSessionId,
+          beforeEmit: () => {
+            window.location.href = "/";
+            return Promise.resolve();
+          },
+        });
       }
     } catch (err: unknown) {
       setError(
