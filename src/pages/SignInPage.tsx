@@ -12,7 +12,7 @@ const MUTED = "#6b4c34";
 const SERIF = "'Cormorant Garamond', Georgia, serif";
 const SANS = "'Inter', system-ui, sans-serif";
 
-type View = "login" | "forgot-send" | "forgot-reset" | "forgot-done";
+type View = "login" | "two-factor" | "forgot-send" | "forgot-reset" | "forgot-done";
 
 export default function SignInPage() {
   const { signIn, isLoaded, setActive } = useSignIn();
@@ -40,6 +40,11 @@ export default function SignInPage() {
         return;
       }
 
+      if (result.status === "needs_second_factor") {
+        setView("two-factor");
+        return;
+      }
+
       setError(`Unexpected status: "${result.status}". Please try again.`);
     } catch (err: unknown) {
       const msg =
@@ -49,6 +54,27 @@ export default function SignInPage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  /* ── Two-factor auth ───────────────────────────────────────── */
+  async function handleTwoFactor(e: FormEvent) {
+    e.preventDefault();
+    if (!isLoaded) return;
+    setError(""); setLoading(true);
+    try {
+      const result = await signIn.attemptSecondFactor({ strategy: "totp", code });
+      if (result.status === "complete") {
+        await setActive({ session: result.createdSessionId });
+        window.location.replace("/");
+        return;
+      }
+      setError(`Unexpected status: "${result.status}".`);
+    } catch (err: unknown) {
+      setError(
+        (err as { errors?: { message: string }[] })?.errors?.[0]?.message ??
+          "Invalid code. Please try again.",
+      );
+    } finally { setLoading(false); }
   }
 
   /* ── Forgot – send code ─────────────────────────────────────── */
@@ -246,6 +272,30 @@ export default function SignInPage() {
             <a href="#" style={ghostLink}>
               User Agreement
             </a>
+          </div>
+        </form>
+      )}
+
+      {/* ── TWO-FACTOR AUTH ──────────────────────────────────── */}
+      {view === "two-factor" && (
+        <form onSubmit={handleTwoFactor} style={cardStyle}>
+          <h2 style={cardTitle}>Two-Step Verification</h2>
+          <p style={cardSub}>Enter the 6-digit code from your authenticator app.</p>
+          <Field icon={<CodeIcon />}>
+            <input
+              type="text"
+              placeholder="000 000"
+              value={code}
+              onChange={e => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+              required
+              autoFocus
+              style={{ ...inputStyle, color: TEXT, letterSpacing: "6px", fontSize: "20px", fontWeight: 700 }}
+            />
+          </Field>
+          {error && <p style={errorStyle}>{error}</p>}
+          <div style={{ display: "flex", gap: "10px", marginTop: "4px" }}>
+            <Btn type="button" secondary onClick={() => { setError(""); setView("login"); }}>Back</Btn>
+            <Btn type="submit" loading={loading}>Verify</Btn>
           </div>
         </form>
       )}
