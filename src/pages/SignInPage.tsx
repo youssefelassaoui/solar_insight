@@ -33,20 +33,20 @@ export default function SignInPage() {
     setLoading(true);
     try {
       const result = await signIn.create({ identifier: email, password });
+
       if (result.status === "complete") {
-        await setActive({
-          session: result.createdSessionId,
-          beforeEmit: () => {
-            window.location.href = "/";
-            return Promise.resolve();
-          },
-        });
+        await setActive({ session: result.createdSessionId });
+        window.location.href = "/";
+        return;
       }
+
+      // Handle any non-complete status visibly
+      setError(`Sign-in status: "${result.status}". Please contact support.`);
     } catch (err: unknown) {
-      setError(
+      const msg =
         (err as { errors?: { message: string }[] })?.errors?.[0]?.message ??
-          "Invalid email or password.",
-      );
+        "Invalid email or password.";
+      setError(msg);
     } finally {
       setLoading(false);
     }
