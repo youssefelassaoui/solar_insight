@@ -1,4 +1,4 @@
-import { Anomaly, Inverter, TimeSeriesPoint } from '../types';
+import type { Anomaly, Inverter, TimeSeriesPoint } from '../types';
 import { format, subHours, subMinutes } from 'date-fns';
 
 const now = new Date();
