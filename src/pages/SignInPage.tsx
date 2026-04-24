@@ -36,7 +36,7 @@ export default function SignInPage() {
 
       if (result.status === "complete") {
         await setActive({ session: result.createdSessionId });
-        window.location.href = "/";
+        window.location.replace("/");
         return;
       }
 

@@ -59,8 +59,13 @@ function ProtectedRoute() {
 
 function PublicRoute() {
   const { isLoaded, isSignedIn } = useAuth()
+  // While loading — show nothing (avoids flash)
   if (!isLoaded) return null
-  if (isSignedIn) return <Navigate to="/" replace />
+  // Already authenticated — go to dashboard
+  if (isSignedIn) {
+    window.location.replace('/')
+    return null
+  }
   return <SignInPage />
 }
 
