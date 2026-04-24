@@ -102,7 +102,7 @@ export default function SignInPage() {
 
       {/* Logo */}
       <div style={{ position: 'relative', zIndex: 1, marginBottom: '36px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <img src="/bayan.svg" alt="Bayan" style={{ height: '70px', objectFit: 'contain', display: 'block', margin: '0 auto' }} />
+        <img src="/bayanplat.svg" alt="Bayan" style={{ height: '70px', objectFit: 'contain', display: 'block', margin: '0 auto' }} />
         <p style={{ fontFamily: SERIF, fontSize: '13px', letterSpacing: '3px', textTransform: 'uppercase', color: WHITE_60, margin: '8px 0 0', fontWeight: 500 }}>
           Solar Digital Twin Platform
         </p>
